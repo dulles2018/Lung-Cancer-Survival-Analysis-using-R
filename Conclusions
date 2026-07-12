@@ -1,0 +1,43 @@
+Key Findings:
+
+Patient Characteristics
+The dataset included lung cancer patients with varying ages, survival times, and clinical characteristics.
+Age distribution analysis showed that lung cancer occurred across a wide range of adult age groups, with many patients being older adults.
+
+Survival Time Analysis
+Survival times varied substantially among patients.
+Some patients had shorter survival periods, while others survived considerably longer, demonstrating differences in disease progression and patient characteristics.
+
+Gender Differences
+Kaplan-Meier survival analysis was used to compare survival probabilities between male and female patients.
+The survival curves showed differences between groups, suggesting that demographic factors may influence survival outcomes.
+
+Clinical Factors
+The Cox proportional hazards model evaluated how factors such as:
+
+Age
+Gender
+ECOG performance status
+were associated with survival risk.
+
+ECOG performance status was an important clinical indicator because a patient's functional status can influence treatment outcomes and overall prognosis.
+
+3. Healthcare Significance
+Survival analysis methods are valuable tools in healthcare analytics because they allow researchers and clinicians to study patient outcomes over time.
+Understanding factors associated with survival can support:
+Earlier identification of high-risk patients
+Better treatment planning
+Improved resource allocation
+Evidence-based clinical decision-making
+
+4. Limitations
+The dataset contains a limited number of patients and may not represent all lung cancer populations.
+Some clinical variables contained missing information, which required removing incomplete records.
+The analysis identifies associations but does not prove causation.
+Additional factors such as treatment type, smoking history, genetics, and comorbidities could provide further insight.
+
+
+
+For a clinical informatics/data analyst portfolio, I would include the longer version in your report/ folder and the shorter version in your GitHub README.
+
+Ad
