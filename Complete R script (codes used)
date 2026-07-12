@@ -1,0 +1,350 @@
+#############################################################
+# Lung Cancer Survival Analysis Using R
+# Dataset: lung dataset from survival package
+# Author: Sruthirekha Ashokkumar
+# Purpose: Analyze factors associated with survival outcomes
+#############################################################
+
+
+#############################################################
+# 1. Install and Load Packages
+#############################################################
+
+# Install packages if needed
+# install.packages("tidyverse")
+# install.packages("survival")
+# install.packages("survminer")
+
+library(tidyverse)
+library(survival)
+library(survminer)
+
+
+#############################################################
+# 2. Load Dataset
+#############################################################
+
+# Load built-in lung cancer dataset
+data("lung")
+
+# View first rows
+head(lung)
+
+# View dataset structure
+str(lung)
+
+# Summary statistics
+summary(lung)
+
+
+#############################################################
+# 3. Data Cleaning
+#############################################################
+
+# Check missing values
+colSums(is.na(lung))
+
+
+# Remove rows with missing values
+lung_clean <- lung %>%
+  drop_na()
+
+
+# Convert survival status
+# Original:
+# 1 = censored
+# 2 = death
+
+lung_clean$status <- ifelse(
+  lung_clean$status == 2,
+  1,
+  0
+)
+
+
+# Convert sex variable
+# Original:
+# 1 = Male
+# 2 = Female
+
+lung_clean$sex <- factor(
+  lung_clean$sex,
+  levels = c(1,2),
+  labels = c("Male","Female")
+)
+
+
+# Save cleaned dataset
+write.csv(
+  lung_clean,
+  "data/lung_clean.csv",
+  row.names = FALSE
+)
+
+
+#############################################################
+# 4. Exploratory Data Analysis
+#############################################################
+
+
+# -------------------------------
+# Age Distribution
+# -------------------------------
+
+age_plot <- ggplot(
+  lung_clean,
+  aes(x = age)
+) +
+  geom_histogram(
+    bins = 20
+  ) +
+  labs(
+    title = "Age Distribution of Lung Cancer Patients",
+    x = "Age",
+    y = "Number of Patients"
+  ) +
+  theme_minimal()
+
+
+print(age_plot)
+
+
+ggsave(
+  "plots/age_distribution.png",
+  age_plot,
+  width = 7,
+  height = 5
+)
+
+
+
+# -------------------------------
+# Survival Time Distribution
+# -------------------------------
+
+
+survival_plot <- ggplot(
+  lung_clean,
+  aes(x = time)
+) +
+  geom_histogram(
+    bins = 30
+  ) +
+  labs(
+    title = "Distribution of Survival Time",
+    x = "Survival Time (Days)",
+    y = "Number of Patients"
+  ) +
+  theme_minimal()
+
+
+print(survival_plot)
+
+
+ggsave(
+  "plots/survival_time_distribution.png",
+  survival_plot,
+  width = 7,
+  height = 5
+)
+
+
+
+# -------------------------------
+# Survival Time by Sex
+# -------------------------------
+
+
+sex_plot <- ggplot(
+  lung_clean,
+  aes(
+    x = sex,
+    y = time
+  )
+) +
+  geom_boxplot() +
+  labs(
+    title = "Survival Time by Gender",
+    x = "Gender",
+    y = "Survival Time (Days)"
+  ) +
+  theme_minimal()
+
+
+print(sex_plot)
+
+
+ggsave(
+  "plots/survival_by_gender.png",
+  sex_plot,
+  width = 7,
+  height = 5
+)
+
+
+
+#############################################################
+# 5. Correlation Analysis
+#############################################################
+
+
+# Relationship between age and survival time
+
+cor_test <- cor.test(
+  lung_clean$age,
+  lung_clean$time
+)
+
+print(cor_test)
+
+
+
+age_survival_plot <- ggplot(
+  lung_clean,
+  aes(
+    x = age,
+    y = time
+  )
+) +
+  geom_point() +
+  geom_smooth(
+    method = "lm"
+  ) +
+  labs(
+    title = "Relationship Between Age and Survival Time",
+    x = "Age",
+    y = "Survival Time (Days)"
+  ) +
+  theme_minimal()
+
+
+print(age_survival_plot)
+
+
+ggsave(
+  "plots/age_vs_survival.png",
+  age_survival_plot,
+  width = 7,
+  height = 5
+)
+
+
+
+#############################################################
+# 6. Kaplan-Meier Survival Analysis
+#############################################################
+
+
+# Create survival object
+
+survival_object <- Surv(
+  time = lung_clean$time,
+  event = lung_clean$status
+)
+
+
+# Fit survival model by gender
+
+km_model <- survfit(
+  survival_object ~ sex,
+  data = lung_clean
+)
+
+
+# Display results
+
+summary(km_model)
+
+
+
+# Plot Kaplan-Meier curve
+
+km_plot <- ggsurvplot(
+  km_model,
+  data = lung_clean,
+  pval = TRUE,
+  risk.table = TRUE,
+  title = "Kaplan-Meier Survival Curve by Gender",
+  xlab = "Time (Days)",
+  ylab = "Probability of Survival"
+)
+
+
+print(km_plot)
+
+
+
+# Save Kaplan-Meier plot
+
+png(
+  "plots/kaplan_meier_gender.png",
+  width = 800,
+  height = 600
+)
+
+print(km_plot)
+
+dev.off()
+
+
+
+#############################################################
+# 7. Cox Proportional Hazards Model
+#############################################################
+
+
+cox_model <- coxph(
+  Surv(time,status) ~ age + sex + ph.ecog,
+  data = lung_clean
+)
+
+
+# Model results
+
+summary(cox_model)
+
+
+
+# Hazard ratios
+
+exp(
+  coef(cox_model)
+)
+
+
+
+#############################################################
+# 8. Check Model Assumptions
+#############################################################
+
+
+cox_test <- cox.zph(
+  cox_model
+)
+
+print(cox_test)
+
+
+
+#############################################################
+# 9. Final Summary
+#############################################################
+
+
+cat(
+"
+Lung Cancer Survival Analysis Completed
+
+Methods Used:
+- Data cleaning
+- Exploratory data analysis
+- Correlation analysis
+- Kaplan-Meier survival analysis
+- Cox proportional hazards regression
+
+Outputs saved:
+- Clean dataset
+- Visualization plots
+
+"
+)
